@@ -6,11 +6,11 @@ import (
 	"os"
 	"path"
 
-	"github.com/dirtydriver/projgen/filescheck"
-	"github.com/dirtydriver/projgen/project"
-	"github.com/dirtydriver/projgen/templater"
-	"github.com/dirtydriver/projgen/utils"
-	"github.com/dirtydriver/projgen/version"
+	"github.com/dirtydriver/templateer-cli/filescheck"
+	"github.com/dirtydriver/templateer-cli/project"
+	"github.com/dirtydriver/templateer-cli/templater"
+	"github.com/dirtydriver/templateer-cli/utils"
+	"github.com/dirtydriver/templateer-cli/version"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +25,7 @@ var (
 
 func getRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "projgen",
+		Use:   "templateer",
 		Short: "Project generator that renders project skeletons from templates",
 	}
 
@@ -138,14 +138,14 @@ func getInspectCmd() *cobra.Command {
 func getVersionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
-		Short: "Print the current version of projgen",
+		Short: "Print the current version of templateer",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("projgen version %s\n", version.Version)
+			fmt.Printf("templateer version %s\n", version.Version)
 		},
 	}
 }
 
-// RunRootCmd executes the root command of the projgen CLI tool.
+// RunRootCmd executes the root command of the templateer CLI tool.
 // If no arguments are provided, it displays the help information.
 // The function handles command execution and exits with an error if the command fails.
 func RunRootCmd() {

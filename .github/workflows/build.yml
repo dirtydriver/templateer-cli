@@ -40,7 +40,7 @@ jobs:
         id: release
         with:
           release-type: go
-          package-name: projgen
+          package-name: templateer
           token: ${{ secrets.TOKEN }}
           
   release-binaries:
@@ -58,14 +58,14 @@ jobs:
 
       - name: Build Release Binaries
         run: |
-          GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/dirtydriver/projgen/version.Version=${{ needs.release-please.outputs.tag_name }}'" -o projgen-linux-amd64
-          GOOS=windows GOARCH=amd64 go build -ldflags="-X 'github.com/dirtydriver/projgen/version.Version=${{ needs.release-please.outputs.tag_name }}'" -o projgen-windows-amd64.exe
-          GOOS=darwin GOARCH=amd64 go build -ldflags="-X 'github.com/dirtydriver/projgen/version.Version=${{ needs.release-please.outputs.tag_name }}'" -o projgen-darwin-amd64
+          GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/dirtydriver/templateer-cli/version.Version=${{ needs.release-please.outputs.tag_name }}'" -o templateer-linux-amd64
+          GOOS=windows GOARCH=amd64 go build -ldflags="-X 'github.com/dirtydriver/templateer-cli/version.Version=${{ needs.release-please.outputs.tag_name }}'" -o templateer-windows-amd64.exe
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-X 'github.com/dirtydriver/templateer-cli/version.Version=${{ needs.release-please.outputs.tag_name }}'" -o templateer-darwin-amd64
 
       - name: Upload Release Artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: |
-          gh release upload ${{ needs.release-please.outputs.tag_name }} projgen-linux-amd64
-          gh release upload ${{ needs.release-please.outputs.tag_name }} projgen-windows-amd64.exe
-          gh release upload ${{ needs.release-please.outputs.tag_name }} projgen-darwin-amd64
+          gh release upload ${{ needs.release-please.outputs.tag_name }} templateer-linux-amd64
+          gh release upload ${{ needs.release-please.outputs.tag_name }} templateer-windows-amd64.exe
+          gh release upload ${{ needs.release-please.outputs.tag_name }} templateer-darwin-amd64

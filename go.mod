@@ -1,4 +1,4 @@
-module github.com/dirtydriver/projgen
+module github.com/dirtydriver/templateer-cli
 
 go 1.25.4
 

@@ -2,7 +2,7 @@
   "packages": {
     ".": {
       "release-type": "go",
-      "package-name": "projgen",
+      "package-name": "templateer",
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
       "draft": false,

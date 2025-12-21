@@ -1,4 +1,4 @@
-# projgen
+# templateer-cli
 
 A powerful and flexible project generator CLI tool written in Go that helps you quickly scaffold new projects from templates.
 
@@ -15,8 +15,8 @@ A powerful and flexible project generator CLI tool written in Go that helps you 
 ### From Source
 ```bash
 # Clone the repository
-git clone https://github.com/dirtydriver/projgen.git
-cd projgen
+git clone https://github.com/dirtydriver/templateer-cli.git
+cd templateer-cli
 
 # Build and install
 go install
@@ -24,12 +24,12 @@ go install
 
 ### Via Go Install
 ```bash
-go install github.com/dirtydriver/projgen@latest
+go install github.com/dirtydriver/templateer-cli@latest
 ```
 
 ## Usage
 
-projgen follows Unix-style command structure with subcommands. Two flags are required for all operations:
+templateer-cli follows Unix-style command structure with subcommands. Two flags are required for all operations:
 - `--template-dir`: Path to the template directory
 - `--type`: Type of project (e.g., maven, gradle, angular)
 
@@ -37,13 +37,13 @@ projgen follows Unix-style command structure with subcommands. Two flags are req
 
 ```bash
 # Generate a new project
-projgen --template-dir <dir> --type <type> generate [flags]
+templateer-cli --template-dir <dir> --type <type> generate [flags]
 
 # Inspect template parameters
-projgen --template-dir <dir> --type <type> inspect
+templateer-cli --template-dir <dir> --type <type> inspect
 
 # Show version
-projgen version
+templateer-cli version
 ```
 
 ### Generate Command Flags
@@ -57,12 +57,12 @@ projgen version
 
 1. Generate a new project:
 ```bash
-projgen --template-dir ./templates --type maven generate --name my-project
+templateer-cli --template-dir ./templates --type maven generate --name my-project
 ```
 
 2. Generate with custom parameters:
 ```bash
-projgen --template-dir ./templates --type angular generate \
+templateer-cli --template-dir ./templates --type angular generate \
   --parameter name=my-app \
   --parameter version=1.0.0 \
   --parameter author="John Doe"
@@ -70,19 +70,19 @@ projgen --template-dir ./templates --type angular generate \
 
 3. Use a parameters file:
 ```bash
-projgen --template-dir ./templates --type gradle generate \
+templateer-cli --template-dir ./templates --type gradle generate \
   --name my-lib \
   --file params.file
 ```
 
 4. Check template parameters:
 ```bash
-projgen --template-dir ./templates --type maven inspect
+templateer-cli --template-dir ./templates --type maven inspect
 ```
 
 ## Template System
 
-projgen uses a powerful templating system that allows you to create and customize project templates. Templates are stored in the `templates` directory and use the `.tmpl` extension.
+templateer-cli uses a powerful templating system that allows you to create and customize project templates. Templates are stored in the `templates` directory and use the `.tmpl` extension.
 
 ### Template Structure
 ```
@@ -98,7 +98,7 @@ templates/
 ```
 
 ### Go Template Syntax
-projgen uses Go's built-in template engine. For detailed documentation, visit the [official text/template package documentation](https://pkg.go.dev/text/template).
+templateer-cli uses Go's built-in template engine. For detailed documentation, visit the [official text/template package documentation](https://pkg.go.dev/text/template).
 
 Common template syntax used in project generation:
 ```
@@ -134,12 +134,12 @@ dependencies:
 1. Create a new directory in `templates/` for your project type
 2. Add template files with the `.tmpl` extension
 3. Use Go template syntax for variable substitution: `{{.variable_name}}`
-4. Use `projgen inspect` to check required parameters
+4. Use `templateer-cli inspect` to check required parameters
 
 ## Project Structure
 
 ```
-projgen/
+templateer-cli/
 ├── cmd/          # Command line interface implementation
 ├── filescheck/   # File system operations and checks
 ├── project/      # Project generation logic
@@ -150,7 +150,7 @@ projgen/
 
 ## Development
 
-To contribute to projgen:
+To contribute to templateer-cli:
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)

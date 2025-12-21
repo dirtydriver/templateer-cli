@@ -11,7 +11,7 @@ import (
 	"text/template/parse"
 
 	"github.com/Masterminds/sprig/v3"
-	"github.com/dirtydriver/projgen/utils"
+	"github.com/dirtydriver/templateer-cli/utils"
 )
 
 func collectPlaceholders(node parse.Node, placeholders map[string]struct{}) {
