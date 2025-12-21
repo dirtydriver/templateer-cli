@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/dirtydriver/projgen/filescheck"
-	"github.com/dirtydriver/projgen/templater"
+	"github.com/dirtydriver/templateer-cli/filescheck"
+	"github.com/dirtydriver/templateer-cli/templater"
 )
 
 // Generate creates a new project from a template directory using the provided parameters.

@@ -1,7 +1,7 @@
 # Makefile for the project-generator
 
 # Variables
-BINARY_NAME := projgen
+BINARY_NAME := templateer
 BUILD_DIR   := bin
 SRC         := ./main.go
 
