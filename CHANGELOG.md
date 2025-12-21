@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.0](https://github.com/dirtydriver/projgen/compare/v1.2.1...v2.0.0) (2025-12-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename project
+
+### Features
+
+* rename project ([be92dcb](https://github.com/dirtydriver/projgen/commit/be92dcb13209ab3eccfe766dfcfd2e56bcf47a9e))
+
+
+### Bug Fixes
+
+* resolve conflct ([78b031c](https://github.com/dirtydriver/projgen/commit/78b031c530c892f78b97fbf9cc1401006e30e9b4))
+
 ## [1.2.1](https://github.com/dirtydriver/projgen/compare/v1.2.0...v1.2.1) (2025-11-19)
 
 
