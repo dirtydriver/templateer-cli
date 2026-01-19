@@ -25,7 +25,25 @@ func collectPlaceholders(node parse.Node, placeholders map[string]struct{}) {
 		}
 	case *parse.ActionNode:
 		collectPlaceholders(n.Pipe, placeholders)
+	case *parse.IfNode:
+		collectPlaceholders(n.Pipe, placeholders)
+		collectPlaceholders(n.List, placeholders)
+		collectPlaceholders(n.ElseList, placeholders)
+	case *parse.RangeNode:
+		collectPlaceholders(n.Pipe, placeholders)
+		collectPlaceholders(n.List, placeholders)
+		collectPlaceholders(n.ElseList, placeholders)
+	case *parse.WithNode:
+		collectPlaceholders(n.Pipe, placeholders)
+		collectPlaceholders(n.List, placeholders)
+		collectPlaceholders(n.ElseList, placeholders)
+	case *parse.TemplateNode:
+		// {{ template "name" .Pipe }}
+		collectPlaceholders(n.Pipe, placeholders)
 	case *parse.PipeNode:
+		for _, decl := range n.Decl {
+			collectPlaceholders(decl, placeholders)
+		}
 		for _, cmd := range n.Cmds {
 			collectPlaceholders(cmd, placeholders)
 		}
@@ -33,6 +51,15 @@ func collectPlaceholders(node parse.Node, placeholders map[string]struct{}) {
 		for _, arg := range n.Args {
 			collectPlaceholders(arg, placeholders)
 		}
+	case *parse.VariableNode:
+		// VariableNode represents variables like {{ $name }} or declarations like {{ $name := ... }}.
+		// We record the variable name so callers can see which template variables are in use.
+		// Note: Ident typically contains a single entry like "$name".
+		if len(n.Ident) == 0 {
+			return
+		}
+		placeholder := strings.Join(n.Ident, ".")
+		placeholders[placeholder] = struct{}{}
 	case *parse.FieldNode:
 		// FieldNode represents expressions like {{ .GroupID }}
 		// The Ident slice contains the field names, which we join with dots.
@@ -42,7 +69,7 @@ func collectPlaceholders(node parse.Node, placeholders map[string]struct{}) {
 		// ChainNode represents chained accesses like {{ .User.Name }}
 		var base string
 		if fieldNode, ok := n.Node.(*parse.FieldNode); ok {
-			base = "." + strings.Join(fieldNode.Ident, ".")
+			base = strings.Join(fieldNode.Ident, ".")
 		} else {
 			// Fallback: use the node's string representation.
 			base = fmt.Sprintf("%v", n.Node)
@@ -50,7 +77,7 @@ func collectPlaceholders(node parse.Node, placeholders map[string]struct{}) {
 		if len(n.Field) > 0 {
 			base += "." + strings.Join(n.Field, ".")
 		}
-		placeholders[base] = struct{}{}
+		placeholders[strings.TrimPrefix(base, ".")] = struct{}{}
 	}
 }
 
@@ -70,7 +97,7 @@ func CollectParameters(tempFiles []string) ([]string, error) {
 		go func(file string) {
 
 			defer wg.Done()
-			tmpl, err := template.ParseFiles(file)
+			tmpl, err := template.New(filepath.Base(file)).Funcs(sprig.TxtFuncMap()).ParseFiles(file)
 			if err != nil {
 				errChan <- err
 				return
