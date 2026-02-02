@@ -142,40 +142,40 @@ func TestRenderTemplate(t *testing.T) {
 // TestRenderTemplateWithSprigFunctions tests template rendering with Sprig functions.
 func TestRenderTemplateWithSprigFunctions(t *testing.T) {
 	tests := []struct {
-		name           string
+		name            string
 		templateContent string
-		params         map[string]interface{}
-		expected       string
+		params          map[string]interface{}
+		expected        string
 	}{
 		{
-			name:           "Upper function",
+			name:            "Upper function",
 			templateContent: "{{.name | upper}}",
-			params:         map[string]interface{}{"name": "john"},
-			expected:       "JOHN",
+			params:          map[string]interface{}{"name": "john"},
+			expected:        "JOHN",
 		},
 		{
-			name:           "Title function",
+			name:            "Title function",
 			templateContent: "{{.name | title}}",
-			params:         map[string]interface{}{"name": "john doe"},
-			expected:       "John Doe",
+			params:          map[string]interface{}{"name": "john doe"},
+			expected:        "John Doe",
 		},
 		{
-			name:           "Default function",
+			name:            "Default function",
 			templateContent: "{{.name | default \"Anonymous\"}}",
-			params:         map[string]interface{}{},
-			expected:       "Anonymous",
+			params:          map[string]interface{}{},
+			expected:        "Anonymous",
 		},
 		{
-			name:           "Date formatting",
+			name:            "Date formatting",
 			templateContent: "{{now | date \"2006-01-02\"}}",
-			params:         map[string]interface{}{},
-			expected:       "", // We'll check this separately since date changes
+			params:          map[string]interface{}{},
+			expected:        "", // We'll check this separately since date changes
 		},
 		{
-			name:           "String operations",
+			name:            "String operations",
 			templateContent: "{{.text | trim | repeat 2}}",
-			params:         map[string]interface{}{"text": " hello "},
-			expected:       "hellohello",
+			params:          map[string]interface{}{"text": " hello "},
+			expected:        "hellohello",
 		},
 	}
 
@@ -218,28 +218,28 @@ func TestRenderTemplateWithSprigFunctions(t *testing.T) {
 // TestRenderTemplateErrors tests error handling in RenderTemplate function.
 func TestRenderTemplateErrors(t *testing.T) {
 	tests := []struct {
-		name           string
+		name            string
 		templateContent string
-		params         map[string]interface{}
-		expectError    bool
+		params          map[string]interface{}
+		expectError     bool
 	}{
 		{
-			name:           "Invalid template syntax",
-			templateContent: "{{ .Name }",  // Missing closing bracket
-			params:         map[string]interface{}{"Name": "John"},
-			expectError:    true,
+			name:            "Invalid template syntax",
+			templateContent: "{{ .Name }", // Missing closing bracket
+			params:          map[string]interface{}{"Name": "John"},
+			expectError:     true,
 		},
 		{
-			name:           "Invalid function call",
+			name:            "Invalid function call",
 			templateContent: "{{ .Name | nonExistentFunction }}",
-			params:         map[string]interface{}{"Name": "John"},
-			expectError:    true,
+			params:          map[string]interface{}{"Name": "John"},
+			expectError:     true,
 		},
 		{
-			name:           "Execution error",
-			templateContent: "{{ index .Items 0 }}",  // Accessing non-existent slice
-			params:         map[string]interface{}{"Name": "John"},
-			expectError:    true,
+			name:            "Execution error",
+			templateContent: "{{ index .Items 0 }}", // Accessing non-existent slice
+			params:          map[string]interface{}{"Name": "John"},
+			expectError:     true,
 		},
 	}
 
@@ -262,7 +262,7 @@ func TestRenderTemplateErrors(t *testing.T) {
 
 			// Render the template
 			_, err = RenderTemplate(tmpFile.Name(), tt.params)
-			
+
 			if tt.expectError && err == nil {
 				t.Errorf("expected error, got nil")
 			} else if !tt.expectError && err != nil {
@@ -345,5 +345,277 @@ func TestWriteTemplate_Error(t *testing.T) {
 	err = WriteTemplate(tempDir, buf)
 	if err == nil {
 		t.Errorf("Expected error when writing to a directory, got nil")
+	}
+}
+
+// TestCollectParametersFromIfNode tests that placeholders inside {{ if }} blocks are collected.
+func TestCollectParametersFromIfNode(t *testing.T) {
+	tempDir := t.TempDir()
+
+	file := filepath.Join(tempDir, "if_template.tmpl")
+	content := `{{ if .Condition }}
+		Value: {{ .TrueValue }}
+	{{ else }}
+		Value: {{ .FalseValue }}
+	{{ end }}`
+	if err := os.WriteFile(file, []byte(content), 0644); err != nil {
+		t.Fatalf("Failed to write file: %v", err)
+	}
+
+	params, err := CollectParameters([]string{file})
+	if err != nil {
+		t.Fatalf("CollectParameters returned error: %v", err)
+	}
+
+	expected := []string{"Condition", "TrueValue", "FalseValue"}
+	sort.Strings(params)
+	sort.Strings(expected)
+	if !reflect.DeepEqual(params, expected) {
+		t.Errorf("Expected parameters %v, got %v", expected, params)
+	}
+}
+
+// TestCollectParametersFromRangeNode tests that placeholders inside {{ range }} blocks are collected.
+func TestCollectParametersFromRangeNode(t *testing.T) {
+	tempDir := t.TempDir()
+
+	file := filepath.Join(tempDir, "range_template.tmpl")
+	content := `{{ range .Items }}
+		Item: {{ .Name }}
+	{{ else }}
+		No items: {{ .EmptyMessage }}
+	{{ end }}`
+	if err := os.WriteFile(file, []byte(content), 0644); err != nil {
+		t.Fatalf("Failed to write file: %v", err)
+	}
+
+	params, err := CollectParameters([]string{file})
+	if err != nil {
+		t.Fatalf("CollectParameters returned error: %v", err)
+	}
+
+	expected := []string{"Items", "Name", "EmptyMessage"}
+	sort.Strings(params)
+	sort.Strings(expected)
+	if !reflect.DeepEqual(params, expected) {
+		t.Errorf("Expected parameters %v, got %v", expected, params)
+	}
+}
+
+// TestCollectParametersFromWithNode tests that placeholders inside {{ with }} blocks are collected.
+func TestCollectParametersFromWithNode(t *testing.T) {
+	tempDir := t.TempDir()
+
+	file := filepath.Join(tempDir, "with_template.tmpl")
+	content := `{{ with .User }}
+		Name: {{ .Name }}
+		Email: {{ .Email }}
+	{{ else }}
+		No user: {{ .DefaultMessage }}
+	{{ end }}`
+	if err := os.WriteFile(file, []byte(content), 0644); err != nil {
+		t.Fatalf("Failed to write file: %v", err)
+	}
+
+	params, err := CollectParameters([]string{file})
+	if err != nil {
+		t.Fatalf("CollectParameters returned error: %v", err)
+	}
+
+	expected := []string{"User", "Name", "Email", "DefaultMessage"}
+	sort.Strings(params)
+	sort.Strings(expected)
+	if !reflect.DeepEqual(params, expected) {
+		t.Errorf("Expected parameters %v, got %v", expected, params)
+	}
+}
+
+// TestCollectParametersFromPipelineWithSprig tests that placeholders in pipelines with Sprig functions are collected.
+func TestCollectParametersFromPipelineWithSprig(t *testing.T) {
+	tempDir := t.TempDir()
+
+	file := filepath.Join(tempDir, "pipeline_template.tmpl")
+	content := `Name: {{ .Name | upper }}
+Project: {{ printf "%s-%s" .ProjectName .Version | lower }}
+Default: {{ .MissingValue | default "fallback" }}`
+	if err := os.WriteFile(file, []byte(content), 0644); err != nil {
+		t.Fatalf("Failed to write file: %v", err)
+	}
+
+	params, err := CollectParameters([]string{file})
+	if err != nil {
+		t.Fatalf("CollectParameters returned error: %v", err)
+	}
+
+	expected := []string{"Name", "ProjectName", "Version", "MissingValue"}
+	sort.Strings(params)
+	sort.Strings(expected)
+	if !reflect.DeepEqual(params, expected) {
+		t.Errorf("Expected parameters %v, got %v", expected, params)
+	}
+}
+
+// TestCollectParametersFromNestedFields tests that nested field access (ChainNode) is collected correctly.
+func TestCollectParametersFromNestedFields(t *testing.T) {
+	tempDir := t.TempDir()
+
+	file := filepath.Join(tempDir, "nested_template.tmpl")
+	content := `User: {{ .User.Profile.Name }}
+Config: {{ .App.Settings.Port }}
+Deep: {{ .Level1.Level2.Level3.Value }}`
+	if err := os.WriteFile(file, []byte(content), 0644); err != nil {
+		t.Fatalf("Failed to write file: %v", err)
+	}
+
+	params, err := CollectParameters([]string{file})
+	if err != nil {
+		t.Fatalf("CollectParameters returned error: %v", err)
+	}
+
+	expected := []string{"User.Profile.Name", "App.Settings.Port", "Level1.Level2.Level3.Value"}
+	sort.Strings(params)
+	sort.Strings(expected)
+	if !reflect.DeepEqual(params, expected) {
+		t.Errorf("Expected parameters %v, got %v", expected, params)
+	}
+}
+
+// TestCollectParametersFromVariableDeclarations tests that pipeline variable declarations are handled.
+func TestCollectParametersFromVariableDeclarations(t *testing.T) {
+	tempDir := t.TempDir()
+
+	file := filepath.Join(tempDir, "variable_template.tmpl")
+	content := `{{ $name := .UserName }}
+{{ $email := .UserEmail }}
+Name: {{ $name }}
+Email: {{ $email }}`
+	if err := os.WriteFile(file, []byte(content), 0644); err != nil {
+		t.Fatalf("Failed to write file: %v", err)
+	}
+
+	params, err := CollectParameters([]string{file})
+	if err != nil {
+		t.Fatalf("CollectParameters returned error: %v", err)
+	}
+
+	// Should collect both the source fields and the variable names
+	// Note: Variables are prefixed with $
+	expectedFields := []string{"UserName", "UserEmail"}
+	for _, expected := range expectedFields {
+		found := false
+		for _, param := range params {
+			if param == expected {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("Expected to find parameter %q in %v", expected, params)
+		}
+	}
+}
+
+// TestCollectParametersComplexTemplate tests a complex template combining multiple features.
+func TestCollectParametersComplexTemplate(t *testing.T) {
+	tempDir := t.TempDir()
+
+	file := filepath.Join(tempDir, "complex_template.tmpl")
+	// This mimics the structure of .teamcity/ci.properties.tmpl
+	content := `# Project Configuration
+vcs.project.key={{ .bitbucketProjectName }}
+project.name={{ .bitbucketRepositoryName }}
+sonar.portfolio.name={{ printf "%s-%s" .bitbucketProjectName .bitbucketRepositoryName | lower }}
+
+# Conditional Configuration
+{{ if .enableDocker }}
+docker.repository={{ .dockerRepository | lower }}
+{{ end }}
+
+# Nested Configuration
+java.build.image={{ .java.image }}
+app.version={{ .app.version.number }}`
+
+	if err := os.WriteFile(file, []byte(content), 0644); err != nil {
+		t.Fatalf("Failed to write file: %v", err)
+	}
+
+	params, err := CollectParameters([]string{file})
+	if err != nil {
+		t.Fatalf("CollectParameters returned error: %v", err)
+	}
+
+	expectedParams := []string{
+		"bitbucketProjectName",
+		"bitbucketRepositoryName",
+		"enableDocker",
+		"dockerRepository",
+		"java.image",
+		"app.version.number",
+	}
+
+	for _, expected := range expectedParams {
+		found := false
+		for _, param := range params {
+			if param == expected {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("Expected to find parameter %q in %v", expected, params)
+		}
+	}
+}
+
+// TestCollectParametersTemplateNode tests that {{ template }} invocations are handled.
+func TestCollectParametersTemplateNode(t *testing.T) {
+	tempDir := t.TempDir()
+
+	file := filepath.Join(tempDir, "template_invoke.tmpl")
+	content := `{{ template "header" .HeaderData }}
+{{ template "body" .BodyContent }}`
+	if err := os.WriteFile(file, []byte(content), 0644); err != nil {
+		t.Fatalf("Failed to write file: %v", err)
+	}
+
+	params, err := CollectParameters([]string{file})
+	if err != nil {
+		t.Fatalf("CollectParameters returned error: %v", err)
+	}
+
+	expected := []string{"HeaderData", "BodyContent"}
+	sort.Strings(params)
+	sort.Strings(expected)
+	if !reflect.DeepEqual(params, expected) {
+		t.Errorf("Expected parameters %v, got %v", expected, params)
+	}
+}
+
+// TestCollectParametersMultipleSprigFunctions tests templates using various Sprig functions.
+func TestCollectParametersMultipleSprigFunctions(t *testing.T) {
+	tempDir := t.TempDir()
+
+	file := filepath.Join(tempDir, "sprig_functions.tmpl")
+	content := `Upper: {{ .text | upper }}
+Lower: {{ .text | lower }}
+Title: {{ .text | title }}
+Trim: {{ .text | trim }}
+Default: {{ .missing | default "fallback" }}
+Repeat: {{ .text | repeat 3 }}
+Replace: {{ .text | replace "old" "new" }}`
+	if err := os.WriteFile(file, []byte(content), 0644); err != nil {
+		t.Fatalf("Failed to write file: %v", err)
+	}
+
+	params, err := CollectParameters([]string{file})
+	if err != nil {
+		t.Fatalf("CollectParameters returned error: %v", err)
+	}
+
+	expected := []string{"text", "missing"}
+	sort.Strings(params)
+	sort.Strings(expected)
+	if !reflect.DeepEqual(params, expected) {
+		t.Errorf("Expected parameters %v, got %v", expected, params)
 	}
 }

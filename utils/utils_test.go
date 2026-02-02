@@ -90,7 +90,7 @@ func TestCheckMissingKeys(t *testing.T) {
 	t.Run("nested keys present", func(t *testing.T) {
 		m := map[string]interface{}{
 			"project": map[string]interface{}{
-				"name": "test",
+				"name":    "test",
 				"version": "1.0.0",
 			},
 			"maven": map[string]interface{}{
@@ -214,7 +214,7 @@ func TestHasNestedKey(t *testing.T) {
 			expected: false,
 		},
 		{
-			name: "empty path",
+			name:     "empty path",
 			m:        map[string]interface{}{},
 			path:     []string{},
 			expected: false,
