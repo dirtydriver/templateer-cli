@@ -12,7 +12,7 @@ templates/
 .vscode/
 # Test binary, built with `go test -c`
 *.test
-
+doc/template-parameter-collection_priv.md
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
