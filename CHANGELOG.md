@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.1](https://github.com/dirtydriver/templateer-cli/compare/v2.0.0...v2.0.1) (2026-02-03)
+
+
+### Bug Fixes
+
+* fix missing nodes ([#20](https://github.com/dirtydriver/templateer-cli/issues/20)) ([9f1ccd5](https://github.com/dirtydriver/templateer-cli/commit/9f1ccd5fcf0408c3a235e282a4ca050659110426))
+* fix missing nodes ([#21](https://github.com/dirtydriver/templateer-cli/issues/21)) ([4e28c46](https://github.com/dirtydriver/templateer-cli/commit/4e28c46e2d446ddf3a4f32fefa01c747275e1a0e))
+
 ## [2.0.0](https://github.com/dirtydriver/projgen/compare/v1.2.1...v2.0.0) (2025-12-21)
 
 
